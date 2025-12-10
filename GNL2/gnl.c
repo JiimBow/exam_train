@@ -1,59 +1,57 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   gnl.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodone <jodone@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/02 15:44:08 by jodone            #+#    #+#             */
-/*   Updated: 2025/12/02 18:22:03 by jodone           ###   ########.fr       */
+/*   Created: 2025/12/10 14:44:22 by jodone            #+#    #+#             */
+/*   Updated: 2025/12/10 16:08:26 by jodone           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "gnl.h"
 
 char	*rest_line(char *stash)
 {
-	char	*rest;
-	int		start;
+	char	*result;
+	int		len;
 	int		i;
 
-	start = 0;
-	while (stash && stash[start] != '\n')
-		start++;
-	rest = malloc((ft_strlen(stash) - start + 1) * sizeof(char));
+	if (!stash)
+		return (NULL);
+	len = 0;
+	while (stash[len] && stash[len] != '\n')
+		len++;
+	result = calloc(ft_strlen(stash) - len + 1, sizeof(char));
 	i = 0;
-	while (stash[start + 1])
-	{
-		rest[i] = stash[start + 1];
-		i++;
-		start++;
-	}
-	rest[i] = '\0';
+	len++;
+	while (stash[len])
+		result[i++] = stash[len++];
+	result[i] = '\0';
 	free(stash);
-	return (rest);
+	return (result);
 }
 
 char	*add_line(char *stash)
 {
-	char	*line;
-	int		len_line;
+	char	*result;
+	int		len;
 	int		i;
-	
-	len_line = 0;
-	while (stash && stash[len_line] != '\n')
-		len_line++;
-	line = malloc((len_line + 1) * sizeof(char));
-	if (!line)
+
+	if (!stash)
 		return (NULL);
+	len = 0;
+	while (stash[len] && stash[len] != '\n')
+		len++;
+	result = calloc(len + 2, sizeof(char));
 	i = 0;
-	while (i < len_line)
+	while (i <= len)
 	{
-		line[i] = stash[i];
+		result[i] = stash[i];
 		i++;
 	}
-	line[i] = '\0';
-	return (line);
+	return (result);
 }
 
 int	loop_breaker(char *stash)
@@ -61,37 +59,36 @@ int	loop_breaker(char *stash)
 	int	i;
 
 	i = 0;
-	while (i < BUFFER_SIZE)
+	while (stash[i])
 	{
-		if (stash[i] == '\n' || stash[i] == '\0')
-			return (0);
+		if (stash[i] == '\n')
+			return (-1);
 		i++;
 	}
 	return (1);
 }
 
-char	*buff_read(int fd, char *stash)
+char	*read_buffer(int fd, char *stash)
 {
 	char	*buffer;
 	int		bytes_read;
 	int		index;
 
-	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	buffer = calloc(BUFFER_SIZE + 1, sizeof(char));
 	index = 1;
-	if (!buffer)
-		return (NULL);
 	while (index > 0)
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read == 0)
-			break;
 		if (bytes_read < 0)
 		{
 			free(buffer);
 			free(stash);
 			return (NULL);
 		}
-		ft_strjoin(stash, buffer);
+		if (bytes_read == 0)
+			break ;
+		buffer[bytes_read] = '\0';
+		stash = ft_strjoin(stash, buffer);
 		index = loop_breaker(stash);
 	}
 	free(buffer);
@@ -100,13 +97,12 @@ char	*buff_read(int fd, char *stash)
 
 char	*get_next_line(int fd)
 {
-	static char	*stash;
+	static char	*stash = NULL;
 	char		*line;
-
+	
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	stash = NULL;
-	stash = buff_read(fd, stash);
+	stash = read_buffer(fd, stash);
 	line = add_line(stash);
 	stash = rest_line(stash);
 	if (stash && stash[0] == '\0')
@@ -115,4 +111,25 @@ char	*get_next_line(int fd)
 		stash = NULL;
 	}
 	return (line);
+}
+
+#include <fcntl.h>
+#include <stdio.h>
+
+int	main()
+{
+	char	*line;
+	int		fd;
+	int		i;
+
+	fd = open("test", O_RDONLY);
+	i = 5;
+	while (i > 0)
+	{
+		line = get_next_line(fd);
+		printf("%s", line);
+		free(line);
+		i--;
+	}
+	close (fd);
 }

@@ -6,7 +6,7 @@
 /*   By: jodone <jodone@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 13:47:37 by jodone            #+#    #+#             */
-/*   Updated: 2025/12/11 18:37:42 by jodone           ###   ########.fr       */
+/*   Updated: 2025/12/11 18:39:41 by jodone           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void	check_sol(char *str, int len, int stable)
 			return ;
 		i++;
 	}
-	if (space == stable)
+	if (space == stable && count == 0)
 	{
 		write(1, str, len);
 		write(1, "\n", 1);

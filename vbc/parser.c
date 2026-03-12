@@ -6,11 +6,12 @@
 /*   By: jodone <jodone@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/12 16:49:14 by jodone            #+#    #+#             */
-/*   Updated: 2026/03/12 17:32:10 by jodone           ###   ########.fr       */
+/*   Updated: 2026/03/12 17:49:26 by jodone           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <ctype.h>
+#include <stdio.h>
 
 int	parenthesis_parse(char *str)
 {
@@ -24,9 +25,23 @@ int	parenthesis_parse(char *str)
 	while (str && str[i])
 	{
 		if (str[i] == '(')
+		{
 			p_count++;
+			if (!isdigit(str[i + 1]) && str[i + 1] != '(')
+			{
+				printf("Unexpected token '%c'\n", str[i]);
+				return (1);
+			}
+		}
 		else if (str[i] == ')')
+		{
 			p_count--;
+			if (str[i + 1] != ')' && str[i + 1] != '+' && str[i + 1] != '*' && str[i + 1] != '\0')
+			{
+				printf("Unexpected token '%c'\n", str[i]);
+				return (1);
+			}
+		}
 		if (isdigit(str[i]))
 			op_count++;
 		else if (str[i] == '+' || str[i] == '*')
@@ -43,8 +58,11 @@ int	parenthesis_parse(char *str)
 		}
 		i++;
 	}
-	if (p_count != 0 || op_count != 1)
+	if (p_count != 0)
+	{
+		printf("Unexpected token '('\n");
 		return (1);
+	}
 	return (0);
 }
 

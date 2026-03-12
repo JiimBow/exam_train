@@ -6,7 +6,7 @@
 /*   By: jodone <jodone@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/12 16:41:33 by jodone            #+#    #+#             */
-/*   Updated: 2026/03/12 17:31:11 by jodone           ###   ########.fr       */
+/*   Updated: 2026/03/12 17:39:45 by jodone           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,9 +66,8 @@ int	main(int ac, char **av)
 		return (1);
 	if (parser(av[1]))
 	{
-		printf("Unexpected token '%c'\n");
-	}
 		return (1);
+	}
 	result = add_sous(&av[1]);
 	printf("%d\n", result);
 }
